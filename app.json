@@ -5,7 +5,17 @@
     "name": "rn-object-classification",
     "slug": "rn-object-classification",
     "version": "1.0.0",
-    "assetBundlePatterns": ["**/*"]
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "43fac257-66c2-4aa7-b3c8-01ebe29c9562"
+      }
+    },
+    "android": {
+      "package": "com.nrlucas.rnobjectclassification"
+    }
   },
   "plugins": [
     [

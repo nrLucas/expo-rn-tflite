@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import * as tf from "@tensorflow/tfjs";
 import { decodeJpeg } from "@tensorflow/tfjs-react-native";
+
 import * as mobilenet from "@tensorflow-models/mobilenet";
 import * as cocossd from "@tensorflow-models/coco-ssd";
 import * as ImagePicker from "expo-image-picker";
@@ -36,37 +37,69 @@ const App = () => {
       quality: 1,
     });
     if (!result.cancelled) {
-      console.log("result uri", result.uri);
+      //console.log("result uri", result.uri);
       setPickedImage(result.uri);
     }
   };
 
-  const classifyUsingMobilenet = async (image) => {
+  const classifyUsingMobilenet = async (image, base64) => {
     try {
       // Load mobilenet.
       await tf.ready();
+
+      //console.log("image", image);
       const model = await mobilenet.load();
+
+      // const model = await tf.loadLayersModel(
+      //   bundleResourceIO(modelJson, modelWeights)
+      // );
+
       setIsTfReady(true);
       //console.log("starting inference with picked image teste: " + pickedImage);
 
       // Convert image to tensor
-      const imgB64 = await FileSystem.readAsStringAsync(image, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
 
-      //console.log("img64 ===>>", imgB64);
-      const imgBuffer = tf.util.encodeString(imgB64, "base64").buffer;
-      const raw = new Uint8Array(imgBuffer);
-      const imageTensor = decodeJpeg(raw);
-      // Classify the tensor and show the result
-      const prediction = await model.classify(imageTensor);
+      if (base64) {
+        const imgBuffer = tf.util.encodeString(image, "base64").buffer;
+        const raw = new Uint8Array(imgBuffer);
+        const imageTensor = decodeJpeg(raw);
+        // Classify the tensor and show the result
+        const prediction = await model.classify(imageTensor);
 
-      //console.log("aqui");
-      if (prediction && prediction.length > 0) {
-        setResult(
-          `${prediction[0].className} (${prediction[0].probability.toFixed(3)})`
-        );
-        setLoading(false);
+        console.log("prediction", prediction);
+
+        if (prediction && prediction.length > 0) {
+          console.log("prediction", prediction);
+          setResult(
+            `${prediction[0].className} (${prediction[0].probability.toFixed(
+              3
+            )})`
+          );
+          setLoading(false);
+        }
+      } else {
+        const imgB64 = await FileSystem.readAsStringAsync(image, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        console.log("img64 ===>>", imgB64);
+        const imgBuffer = tf.util.encodeString(imgB64, "base64").buffer;
+        const raw = new Uint8Array(imgBuffer);
+        const imageTensor = decodeJpeg(raw);
+        // Classify the tensor and show the result
+        const prediction = await model.classify(imageTensor);
+        //const prediction = model.predict(image);
+
+        console.log("prediction", prediction);
+        if (prediction && prediction.length > 0) {
+          console.log("prediction", prediction);
+
+          setResult(
+            `${prediction[0].className} (${prediction[0].probability.toFixed(
+              3
+            )})`
+          );
+          setLoading(false);
+        }
       }
     } catch (err) {
       setLoading(false);
@@ -75,25 +108,44 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    if (!!pickedImage) {
-      setLoading(true);
-      classifyUsingMobilenet(pickedImage);
-    }
-  }, [pickedImage]);
-
-  useEffect(() => {
-    if (!!photo) {
-      setLoading(true);
-      classifyUsingMobilenet(photo.base64);
-    }
-  }, [photo]);
-
   //CAMERA
   let cameraRef = useRef();
   const [hasCameraPermission, setHasCameraPermission] = useState();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
   const [photo, setPhoto] = useState();
+
+  // const loadModel = async () => {
+  //   try {
+  //     await tf.ready();
+  //     const model = await tf.loadLayersModel(
+  //       bundleResourceIO(modelJson, modelWeights)
+  //     );
+
+  //     if (model) console.log("model", model);
+  //   } catch (err) {
+  //     console.log("Erro");
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   loadModel();
+  // }, []);
+
+  useEffect(() => {
+    if (!!pickedImage) {
+      setLoading(true);
+      classifyUsingMobilenet(pickedImage, false);
+    }
+  }, [pickedImage]);
+
+  useEffect(() => {
+    if (!!photo) {
+      console.log("photo", photo);
+      //console.log("photo", photo.base64);
+      setLoading(true);
+      classifyUsingMobilenet(photo.base64, true);
+    }
+  }, [photo]);
 
   useEffect(() => {
     (async () => {
@@ -123,6 +175,7 @@ const App = () => {
     };
 
     let newPhoto = await cameraRef.current.takePictureAsync(options);
+
     setPhoto(newPhoto);
   };
 
@@ -164,6 +217,32 @@ const App = () => {
     );
   }
 
+  if (pickedImage) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Image
+          source={{ uri: pickedImage }}
+          style={{ width: 200, height: 200, margin: 40 }}
+        />
+        {/* <View style={styles.buttonContainer}>
+          <Button title="Take Pic" onPress={takePic} />
+        </View> */}
+        {loading ? (
+          <Text>Carregando...</Text>
+        ) : result !== "" ? (
+          <Text>{result}</Text>
+        ) : (
+          <Text>Modelo pronto!</Text>
+        )}
+        {/* <Button title="Share" onPress={sharePic} />
+        {hasMediaLibraryPermission ? (
+          <Button title="Save" onPress={savePhoto} />
+        ) : undefined}*/}
+        <Button title="Voltar" onPress={() => setPickedImage(undefined)} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <Camera style={styles.container} ref={cameraRef}>
       <View
@@ -176,10 +255,12 @@ const App = () => {
         }}
       >
         {!!pickedImage && (
-          <Image
-            source={{ uri: pickedImage }}
-            style={{ width: 200, height: 200, margin: 40 }}
-          />
+          <>
+            <Image
+              source={{ uri: pickedImage }}
+              style={{ width: 200, height: 200, margin: 40 }}
+            />
+          </>
         )}
 
         <View
