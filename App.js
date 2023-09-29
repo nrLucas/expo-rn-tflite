@@ -41,16 +41,16 @@ const App = () => {
     }
   };
 
-  const classifyUsingMobilenet = async () => {
+  const classifyUsingMobilenet = async (image) => {
     try {
       // Load mobilenet.
       await tf.ready();
       const model = await mobilenet.load();
       setIsTfReady(true);
-      console.log("starting inference with picked image teste: " + pickedImage);
+      //console.log("starting inference with picked image teste: " + pickedImage);
 
       // Convert image to tensor
-      const imgB64 = await FileSystem.readAsStringAsync(pickedImage, {
+      const imgB64 = await FileSystem.readAsStringAsync(image, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
@@ -78,58 +78,22 @@ const App = () => {
   useEffect(() => {
     if (!!pickedImage) {
       setLoading(true);
-
-      classifyUsingMobilenet();
+      classifyUsingMobilenet(pickedImage);
     }
   }, [pickedImage]);
+
+  useEffect(() => {
+    if (!!photo) {
+      setLoading(true);
+      classifyUsingMobilenet(photo.base64);
+    }
+  }, [photo]);
 
   //CAMERA
   let cameraRef = useRef();
   const [hasCameraPermission, setHasCameraPermission] = useState();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
   const [photo, setPhoto] = useState();
-
-  const classifyUsingMobilenet2 = async () => {
-    try {
-      // Load mobilenet.
-      await tf.ready();
-      const model = await mobilenet.load();
-      setIsTfReady(true);
-      console.log("starting inference with picked image: " + pickedImage);
-
-      // Convert image to tensor
-      // const imgB64 = await FileSystem.readAsStringAsync(pickedImage, {
-      //   encoding: FileSystem.EncodingType.Base64,
-      // });
-      const imgBuffer = tf.util.encodeString(photo.base64, "base64").buffer;
-      const raw = new Uint8Array(imgBuffer);
-      const imageTensor = decodeJpeg(raw);
-      // Classify the tensor and show the result
-      const prediction = await model.classify(imageTensor);
-      if (prediction && prediction.length > 0) {
-        setResult(
-          `${prediction[0].className} (${prediction[0].probability.toFixed(3)})`
-        );
-        setLoading(false);
-      }
-    } catch (err) {
-      setLoading(false);
-
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    console.log("Loading", loading);
-    console.log("Result", result);
-  }, [result, loading]);
-
-  useEffect(() => {
-    if (!!photo) {
-      setLoading(true);
-      classifyUsingMobilenet2();
-    }
-  }, [photo]);
 
   useEffect(() => {
     (async () => {
@@ -207,11 +171,8 @@ const App = () => {
           height: "100%",
           width: "100%",
           display: "flex",
-          //flexDirection: "column",
           alignItems: "center",
           justifyContent: "flex-end",
-          //backgroundColor: "#ffff",
-          //marginBottom: "20%",
         }}
       >
         {!!pickedImage && (
