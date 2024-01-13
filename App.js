@@ -20,6 +20,8 @@ import * as MediaLibrary from "expo-media-library";
 import { Camera } from "expo-camera";
 import { StatusBar } from "expo-status-bar";
 
+//import TensorFlowLite from 'react-native-tensorflow-lite'; tesste
+
 const App = () => {
   const [isTfReady, setIsTfReady] = useState(false);
   const [result, setResult] = useState("");
@@ -45,7 +47,8 @@ const App = () => {
     try {
       // Load mobilenet.
       await tf.ready();
-      const model = await mobilenet.load();
+      //const model = await mobilenet.load();
+      const model = await loadTensorflowModel(require("./assets/model.tflite"));
       setIsTfReady(true);
       //console.log("starting inference with picked image teste: " + pickedImage);
 

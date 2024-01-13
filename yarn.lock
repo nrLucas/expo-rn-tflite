@@ -10559,6 +10559,11 @@ react-native-codegen@^0.0.17:
     jscodeshift "^0.13.1"
     nullthrows "^1.1.1"
 
+react-native-fast-tflite@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/react-native-fast-tflite/-/react-native-fast-tflite-0.3.1.tgz#6a17dbabd4ba64fc81ab743b9b5180223e396f8a"
+  integrity sha512-6YqNuFKgRi30Tgq9fpljJn/0pOg1EofbixIvhlLkodrRAhPajJyz29p/jyH6l6CYXJUsPJc7QPZ3wpds1DPJ1A==
+
 react-native-fs@2.14.1:
   version "2.14.1"
   resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.14.1.tgz#61c70a865b5b5bcb020dd4e4befd60a2c20c836f"
@@ -10582,6 +10587,11 @@ react-native-gradle-plugin@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.0.6.tgz#b61a9234ad2f61430937911003cddd7e15c72b45"
   integrity sha512-eIlgtsmDp1jLC24dRn43hB3kEcZVqx6DUQbR0N1ABXGnMEafm9I3V3dUUeD1vh+Dy5WqijSoEwLNUPLgu5zDMg==
+
+react-native-tensorflow-lite@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/react-native-tensorflow-lite/-/react-native-tensorflow-lite-1.0.6.tgz#45fb991d69e5e5fa3ada4d8ad17bba4842a0fb62"
+  integrity sha512-KLVNOw/5sNGsitGgkuYyZQgmRDnkOD2P0ajTsiCo/++8v9s7ig3/r/STpR0EvHOyf8Xrcbb8tnT/i12W+VAFgg==
 
 react-native@0.68.2:
   version "0.68.2"
